@@ -7,6 +7,8 @@ class QuestionSolutions {
      *
      *  Find the maximum profit possible for the stock given the stock prices.
      *
+     *  Leetcode Reference: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+     *
      *  Examples
      *      Input: [ 3, 1, 5, 10, 2 ]
      *      Output: 9
