@@ -37,4 +37,37 @@ class QuestionSolutions {
         }
         return bestProfit;
     }
+
+    /**
+     * [Count Ocean Views]
+     * Given a list of building heights, suppose there is an ocean
+     * view at the end of the array. A building has an ocean view if
+     * its height is strictly greater than all buildings between it
+     * and the ocean. For example, the array [ 5, 1, 4, 2, 3, 1 ] would
+     * look like:
+     *
+     *      x
+     *      x       x
+     *      x       x       x
+     *      x       x   x   x
+     *      x   x   x   x   x   x  ----(ocean)----
+     *    i=0   1   2   3   4   5
+     *
+     * and there would be 4 buildings that can see the ocean (i={0, 2, 4, 5})
+     *
+     * Return the number of buildings with an ocean view.
+     * @param buildings - list of building heights from left to right
+     * @return - the number of buildings with ocean views
+     */
+    static int oceanView(int[] buildings) {
+        int curMax = 0;
+        int numViews = 0;
+        for (int i = buildings.length-1; i >= 0; i--) {
+            if (buildings[i] > curMax) {
+                numViews++;
+                curMax = buildings[i];
+            }
+        }
+        return numViews;
+    }
 }
