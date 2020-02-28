@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+
 class QuestionSolutions {
     /**
      * [Best Time to Buy and Sell I]
@@ -69,5 +73,50 @@ class QuestionSolutions {
             }
         }
         return numViews;
+    }
+
+    /**
+     * [Merge Intervals]
+     * Given a list of intervals in the form [startTime, endTime] that may or may
+     * not be overlapping, merge any overlapping intervals. For example, two intervals
+     * [1, 5] and [3, 7] can be merged together into [1, 7].
+     *
+     * Leetcode Reference: https://leetcode.com/problems/merge-intervals/
+     *
+     * Examples
+     *  Input: [ [8,10], [2,6], [1,3], [15,18] ]
+     *  Output: [ [1,6], [8,10], [15,18] ]
+     *  Why: Since intervals [1,3] and [2,6] overlap, merge them into [1,6]
+     *
+     *  Input: [ [1,4], [4,5] ]
+     *  Output: [ [1, 5] ]
+     *  Why: The two intervals are considered overlapping if the end time
+     *       is equal to the start time
+     *
+     * @param intervals - array of interval (start, end) pairs
+     * @return - the same array of intervals with any overlapping intervals merged into one
+     */
+    static int[][] mergeIntervals(int[][] intervals) {
+        if (intervals.length == 0) return intervals;
+
+        // Sort the intervals by START time
+        Arrays.sort(intervals, Comparator.comparingInt(a -> a[0]));
+
+        // Accumulate the final merged intervals
+        ArrayList<int[]> merged = new ArrayList<int[]>();
+        int[] curMerge = intervals[0];
+        for (int i = 1; i < intervals.length; i++) {
+            int[] next = intervals[i];
+            if (curMerge[1] >= next[0]) {
+                // next interval can be merged
+                curMerge[1] = Math.max(next[1], curMerge[1]);
+            } else {
+                // next interval cannot be merged
+                merged.add(curMerge);
+                curMerge = next;
+            }
+        }
+        merged.add(curMerge);
+        return merged.toArray(new int[merged.size()][]);
     }
 }
