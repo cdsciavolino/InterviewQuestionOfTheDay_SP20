@@ -119,4 +119,45 @@ class QuestionSolutions {
         merged.add(curMerge);
         return merged.toArray(new int[merged.size()][]);
     }
+
+    /**
+     * [Product Excluding Self]
+     * Given a list of numbers, return an array where output[i] is the
+     * product of all the numbers in `nums` except nums[i]. That is:
+     *      output[i] = nums[0] * nums[1] * ... * nums[i-1] * nums[i+1] * ... * nums[nums.length-1]
+     *
+     * Leetcode Reference: https://leetcode.com/problems/product-of-array-except-self/
+     *
+     *  Main Challenge: Can you complete this without using division?
+     *  Challenge #1: Can you solve this in linear time?
+     *  Challenge #2: Can you solve this using constant memory (excluding returned array)?
+     *
+     *  Examples
+     *      Input: [ 1, 2, 3, 4 ]
+     *      Output: [ 24, 12, 8, 6 ]
+     *
+     * @param nums - list of numbers
+     * @return the output array described above
+     */
+    static int[] productExceptSelf(int[] nums) {
+        if (nums == null || nums.length == 0) return nums;
+        int[] prods = new int[nums.length];
+
+        // LEFT: prods[i] = nums[0] * nums[1] * ... * nums[i-1]
+        int lProd = 1;
+        prods[0] = 1;
+        for (int i = 1; i < nums.length; i++) {
+            lProd *= nums[i - 1];
+            prods[i] = lProd;
+        }
+
+        // RIGHT: prods[i] = nums[len-1] * ... * nums[i+1]
+        int rProd = 1;
+        for (int i = nums.length - 2; i >= 0; i--) {
+            rProd *= nums[i+1];
+            prods[i] *= rProd;
+        }
+
+        return prods;
+    }
 }
