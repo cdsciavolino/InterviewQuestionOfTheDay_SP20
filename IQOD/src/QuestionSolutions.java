@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 
 class QuestionSolutions {
     /**
@@ -159,5 +157,146 @@ class QuestionSolutions {
         }
 
         return prods;
+    }
+
+
+    /**
+     * [k-Nearest Restaurants]
+     *  Given a list of xy-coordinates of restaurants and a coordinate for a home, return
+     *  the nearest k restaurants to the home.
+     *
+     *  Solution 1 Runtime: O(nk), which would be better for smaller values of k
+     *  Solution 2 Runtime: O(n log n), which would be better for larger values of k
+     *
+     * @param restaurants is a list of xy-coordinates for the restaurants
+     * @param home is the xy-coordinate of the home
+     * @param k is the number of restaurants to return
+     * @return the k-nearest restaurants to the home
+     */
+    static Coordinate[] kNearestRestaurants(Coordinate[] restaurants, Coordinate home, int k) {
+        // Convert into CoordinateDist objects to include distances to reference point `home`
+        // Could easily be replaced with a Map<Coordinate, Double> instead
+        CoordinateDist[] restaurantDists = new CoordinateDist[restaurants.length];
+        Coordinate[] nearestK = new Coordinate[Math.min(k, restaurants.length)];
+        for (int i = 0; i < restaurants.length; i++) {
+            restaurantDists[i] = new CoordinateDist(restaurants[i], home);
+        }
+
+        // If k is too big, just sort and return the distances (no filtering needed)
+        if (k >= restaurantDists.length) {
+            Arrays.sort(restaurantDists);
+            for (int i = 0; i < restaurantDists.length; i++)
+                nearestK[i] = restaurantDists[i].coord;
+            return nearestK;
+        }
+
+        // ==== BEGIN SOLUTION 1 ====
+        Set<CoordinateDist> added = new HashSet<CoordinateDist>();
+        for (int i = 0; i < k; i++) {
+            CoordinateDist champion = restaurantDists[0];
+            for (CoordinateDist restaurantDist : restaurantDists) {
+                if (!added.contains(restaurantDist) && restaurantDist.distance < champion.distance)
+                    champion = restaurantDist;
+            }
+            nearestK[i] = champion.coord;
+            added.add(champion);
+        }
+        // ==== END SOLUTION 1 ====
+
+        // ==== BEGIN SOLUTION 2 ====
+        // Sort by ascending distances
+        Arrays.sort(restaurantDists,
+                (cDist1, cDist2) ->
+                        cDist1.distance - cDist2.distance > 0 ? 1 : cDist1.distance == cDist2.distance ? 0 : -1);
+
+        // Find the first k elements
+        for (int i = 0; i < k; i++) {
+            nearestK[i] = restaurantDists[i].coord;
+        }
+        // ==== END SOLUTION 2 ====
+
+
+        return nearestK;
+    }
+
+    // Inner class used for kNearestRestaurants problem
+    // Represents an (X, Y) coordinate
+    static class Coordinate {
+        private final int x;  // x coordinate
+        private final int y;  // y coordinate
+
+        Coordinate(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + x + ", " + y + ")";
+        }
+    }
+
+    // Private helper method for kNearestRestaurants problem
+    // Return the Euclidean distance between two points [(x1-x2)^2 + (y1-y2)^2]^0.5
+    private static double euclideanDistance(Coordinate c1, Coordinate c2) {
+        return Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+    }
+
+    // Inner class used for kNearestRestaurants problem
+    // Represents an (X, Y) coordinate and its distance to a query point
+    private static class CoordinateDist {
+        private final Coordinate coord;  // Coordinate this represents
+        private final double distance;   // Distance between coord and reference point
+
+        CoordinateDist(Coordinate coord, Coordinate reference) {
+            this.coord = coord;
+            this.distance = euclideanDistance(coord, reference);
+        }
+    }
+
+
+    /**
+     * [k-Most Frequent Words]
+     *  Given a (potentially very large) corpus string of space-separated words and a list of
+     *  skip words to omit, return the k-most frequently occurring words that do not appear
+     *  in the list of omitted words. Ignore casing and break ties arbitrarily.
+     *
+     * @param corpus is a space-separated string of words to consider
+     * @param skipWords is a list of words to omit from your counts
+     * @param k is the number of words to return
+     * @return the k-most frequently occurring words in the corpus
+     */
+    static String[] kMostFrequentWords(String corpus, String[] skipWords, int k) {
+        // Pre-process the list of skipWords into a set for quick contains operations
+        Set<String> omitted = new HashSet<String>();
+        Collections.addAll(omitted, skipWords);
+
+        // Count up all the words in the corpus into a Map of word -> frequency
+        String[] words = corpus.split(" ");
+        Map<String, Integer> wordCounts = new HashMap<String, Integer>();
+        for (String word : words) {
+            word = word.toLowerCase();
+            if (!omitted.contains(word))
+                wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+        }
+
+        // Search for the top-k most frequent words
+        String[] topK = new String[Math.min(wordCounts.keySet().size(), k)];
+        Set<String> added = new HashSet<String>();
+        for (int i = 0; i < Math.min(wordCounts.keySet().size(), k); i++) {
+            String champion = null;
+            int maxFreq = Integer.MIN_VALUE;
+
+            // Find the most frequent unused word and add it to the list
+            for (Map.Entry<String, Integer> wordCount : wordCounts.entrySet()) {
+                if (!added.contains(wordCount.getKey()) && wordCount.getValue() > maxFreq) {
+                    champion = wordCount.getKey();
+                    maxFreq = wordCount.getValue();
+                }
+            }
+            topK[i] = champion;
+            added.add(champion);
+        }
+        return topK;
     }
 }
