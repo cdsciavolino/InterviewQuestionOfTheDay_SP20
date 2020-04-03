@@ -299,4 +299,73 @@ class QuestionSolutions {
         }
         return topK;
     }
+
+    /**
+     * [Number of Islands]
+     * Given a grid of 0s and 1s, return the number of unique islands there are (1 being
+     * land and 0 being ocean). Assume the edges are ocean. Connections are only between
+     * up, down, left, and right (no diagonals).
+     *
+     * Input: [[ 1, 1, 0, 0, 1 ],
+     *         [ 1, 1, 0, 1, 1 ],
+     *         [ 0, 0, 1, 0, 0 ],
+     *         [ 0, 0, 1, 1, 1 ]]
+     * Output: 3
+     *
+     * @param map contains the list of 0s and 1s
+     * @return the number of distinct islands in the map
+     */
+    static int numIslands(int[][] map) {
+        if (map == null || map.length == 0) return 0;
+
+        boolean[][] visited = new boolean[map.length][map[0].length];
+        int numIslands = 0;
+        for (int i = 0; i < visited.length; i++) {
+            for (int j = 0; j < visited[i].length; j++) {
+                if (!visited[i][j]) {
+                    if (map[i][j] == 1) numIslands++;
+                    adventure(map, i, j, visited);
+                }
+            }
+        }
+        return numIslands;
+    }
+
+    // Standard DFS, visit all adjacent nodes until reaching water
+    private static void adventure(int[][] map, int row, int col, boolean[][] visited) {
+        if (visited[row][col]) return;
+
+        visited[row][col] = true;
+        if (map[row][col] == 0) return; // nothing to see here
+        // found an island! Let's exploreeeee
+        final int[] DIRECTIONS = {0, 1, 2, 3}; // UP, RIGHT, DOWN, LEFT
+        for (int direction : DIRECTIONS) {
+            int[] rowCol = getRowColFromDirection(row, col, direction);
+            int nextRow = rowCol[0];
+            int nextCol = rowCol[1];
+            if (isValidRowCol(map, nextRow, nextCol))
+                adventure(map, nextRow, nextCol, visited);
+        }
+    }
+
+    // True if (row, col) is within map
+    private static boolean isValidRowCol(int[][] map, int row, int col) {
+        return row > -1 && col > -1 && row < map.length && col < map[0].length;
+    }
+
+    // Return neighbor [row, col] in a given direction
+    // PRE: direction \in {0, 1, 2, 3}
+    private static int[] getRowColFromDirection(int row, int col, int direction) {
+        switch (direction) {
+            case 0:
+                return new int[]{row, col+1};
+            case 1:
+                return new int[]{row+1, col};
+            case 2:
+                return new int[]{row, col-1};
+            case 3:
+                return new int[]{row-1, col};
+        }
+        return null;
+    }
 }
