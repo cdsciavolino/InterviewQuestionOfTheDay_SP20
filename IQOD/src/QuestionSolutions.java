@@ -368,4 +368,83 @@ class QuestionSolutions {
         }
         return null;
     }
+
+    /**
+     * Given two words `start` and `end` and a dictionary of all possible words `wordList`,
+     * find the minimum number of operations to convert from `start` to `end` using only
+     * words in `wordList`. Return 0 if no transformation is possible.
+     *
+     *  Leetcode reference: https://leetcode.com/problems/word-ladder/
+     *
+     *  Ex. wordList=[ "hot", "dot", "dog", "log", "cog" ]
+     *  Input: start="hit", end="cog",
+     *  Output: 5
+     *  Explanation: hit -> hot -> dot -> dog -> cog
+     *
+     *  Notes:
+     *      - Only 1 character can be changed at a time
+     *      - Each transformed word must be in the given word list
+     *
+     *
+     * @param start beginning word
+     * @param end ending word
+     * @param wordList list of available transformation words
+     * @return minimum number of operations to convert from start to end, or 0 if impossible
+     */
+    static int minWordTransform(String start, String end, List<String> wordList) {
+        // Preprocess the wordList into a Set for fast .contains operations
+        Set<String> words = new HashSet<String>(wordList);
+        words.add(start);
+
+        // Preprocess the words in the wordList into neighboring words
+        // Map from word -> 1 character away neighboring words
+        final int NUM_CHARACTERS = 26;
+        final int WORD_LEN = start.length();
+        Map<String, List<String>> neighborWords = new HashMap<String, List<String>>();
+        for (String word : words) {
+            List<String> neighbors = new ArrayList<String>();
+            for (int ind = 0; ind < word.length(); ind++) {
+                String prefix = word.substring(0, ind);
+                String postfix = word.substring(ind+1, WORD_LEN);
+                for (int i = 0; i < NUM_CHARACTERS; i++) {
+                    char curChar = (char)('a' + i);
+                    String neighbor = prefix + curChar + postfix;
+                    if (words.contains(neighbor)) neighbors.add(neighbor);
+                }
+            }
+            neighborWords.put(word, neighbors);
+        }
+
+        // BFS search for minimal sequences to end word
+        Queue<WordNode> nextWords = new LinkedList<WordNode>();
+        Set<String> visited = new HashSet<String>();
+        nextWords.add(new WordNode(start, 1));
+        visited.add(start);
+        while (!nextWords.isEmpty()) {
+            WordNode curWord = nextWords.poll();
+            if (curWord.word.equals(end)) return curWord.numSteps;
+
+            List<String> neighbors = neighborWords.get(curWord.word);
+            for (String neighbor : neighbors) {
+                if (!visited.contains(neighbor)) {
+                    nextWords.add(new WordNode(neighbor, curWord.numSteps + 1));
+                    visited.add(neighbor);
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    // Abstraction representing a (word, steps) tuple
+    // Used for Word Ladder problem
+    private static class WordNode {
+        String word;
+        int numSteps;
+
+        WordNode(String word, int numSteps) {
+            this.word = word;
+            this.numSteps = numSteps;
+        }
+    }
 }
