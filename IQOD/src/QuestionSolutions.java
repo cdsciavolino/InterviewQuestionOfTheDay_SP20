@@ -447,4 +447,106 @@ class QuestionSolutions {
             this.numSteps = numSteps;
         }
     }
+
+    /**
+     * Given a positive capacity, design an LRU cache that supports a get(key) operation and
+     * a put(key, value) operation in constant time.
+     *
+     *  Leetcode Reference: https://leetcode.com/problems/lru-cache/
+     *
+     *  Solution uses:
+     *      - HashMap from Key -> ListNode to store and retreive the key-value pairs quickly.
+     *      - Doubly Linked List to keep track of the LRU ordering
+     */
+    static class LRUCache {
+        int capacity;                   // max number of entries in the LRU cache
+        Map<Integer, ListNode> cache;   // storage of the k,v pairs in the LRU cache
+        ListNode lru;                   // pointer to the least-recently-used node (front)
+        ListNode mru;                   // pointer to the most-recently-used node (back)
+
+        public LRUCache(int capacity) {
+            this.capacity = capacity;
+            cache = new HashMap<Integer, LRUCache.ListNode>();
+        }
+
+        /**
+         * Returns the value associated with `key` in the LRU cache, or -1 if it's
+         * not present.
+         * @param key key of the LRU cache entry
+         * @return value of the LRU cache entry, -1 if not present
+         */
+        public int get(int key) {
+            if (cache.containsKey(key)) {
+                ListNode found = cache.get(key);
+                remove(found);
+                addToEnd(found);
+                return found.val;
+            }
+            return -1;
+        }
+
+        /**
+         * Adds the (`key`, `value`) pair to the LRU cache, evicting the least-recently-used
+         * entry if the cache is full.
+         * @param key key of the LRU cache entry
+         * @param value value of the LRU cache entry
+         */
+        public void put(int key, int value) {
+            ListNode newNode = new ListNode(key, value, null, null);
+            if (cache.containsKey(key)) {
+                // just update value
+                remove(cache.get(key));
+                cache.put(key, newNode);
+                addToEnd(newNode);
+            }
+            else if (cache.size() == capacity) {
+                // evict lru element
+                ListNode lruNode = lru;
+                cache.remove(lruNode.key);
+                remove(lruNode);
+                cache.put(key, newNode);
+                addToEnd(newNode);
+            } else {
+                // no need to evict
+                cache.put(key, newNode);
+                addToEnd(newNode);
+            }
+        }
+
+        // Performs a remove-from-middle LinkedList operation
+        private void remove(ListNode node) {
+            if (node.prev != null) node.prev.next = node.next;
+            if (node.next != null) node.next.prev = node.prev;
+            if (node.prev == null) lru = node.next;
+            if (node.next == null) mru = node.prev;
+            node.next = null;
+            node.prev = null;
+        }
+
+        // Performs an append LinkedList operation
+        private void addToEnd(ListNode node) {
+            if (mru == null) {
+                lru = node;
+            } else {
+                mru.next = node;
+                node.prev = mru;
+            }
+            mru = node;
+        }
+
+        // Wrapper class for a (k, v) pair node in the LinkedList
+        static class ListNode {
+            int key;
+            int val;
+            ListNode prev;
+            ListNode next;
+
+            ListNode(int k, int v, ListNode p, ListNode n) {
+                key = k;
+                val = v;
+                prev = p;
+                next = n;
+            }
+        }
+    }
 }

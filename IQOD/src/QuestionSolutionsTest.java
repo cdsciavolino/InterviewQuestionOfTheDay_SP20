@@ -1,5 +1,9 @@
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class QuestionSolutionsTest {
@@ -52,5 +56,37 @@ class QuestionSolutionsTest {
                 { 0, 0, 1, 1, 1 },
         };
         assertEquals(3, QuestionSolutions.numIslands(example));
+    }
+
+    @Test
+    void testMinWordTransform() {
+        List<String> wordList = new ArrayList<String>();
+        Collections.addAll(wordList, "hot","dot","dog","lot","log","cog");
+        assertEquals(5, QuestionSolutions.minWordTransform("hit", "cog", wordList));
+
+        wordList.remove("cog");
+        assertEquals(0, QuestionSolutions.minWordTransform("hit", "cog", wordList));
+        assertEquals(2, QuestionSolutions.minWordTransform("hit", "hot", wordList));
+        assertEquals(0, QuestionSolutions.minWordTransform("cog", "hit", wordList));
+    }
+
+    @Test
+    void testLRUCache() {
+        QuestionSolutions.LRUCache cache = new QuestionSolutions.LRUCache(2);
+        cache.put(1, 1);
+        assertEquals(1, cache.get(1));
+        cache.put(2, 2);
+        assertEquals(1, cache.get(1));
+        assertEquals(2, cache.get(2));
+        cache.put(3, 3);
+        assertEquals(3, cache.get(3));
+        assertEquals(2, cache.get(2));
+        assertEquals(-1, cache.get(1));
+        cache.put(4, 4);
+        assertEquals(-1, cache.get(3));
+        assertEquals(2, cache.get(2));
+        assertEquals(4, cache.get(4));
+        cache.put(4, 5);
+        assertEquals(5, cache.get(4));
     }
 }
